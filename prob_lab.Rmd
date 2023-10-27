@@ -42,7 +42,18 @@ de tus simulaciones en la variable `time_sims`. (Pista: las funciones
 `pmin` o `pmax` pueden ser útiles.) 
 
 ```{r block_i}
+# M: Tiempo falle el primero 
+# Tiempos de Fallo: 
+#     A = 2 segundos 
+#     B = 3 segundos
+#     C = 5 segundos
 
+simulaciones = 5000
+x_a = rexp(simulaciones, rate = 2)
+x_b = rexp(simulaciones, rate = 3)
+x_c = rexp(simulaciones, rate = 5)
+M = pmin(x_a, x_b, x_c)
+time_sims <- M
 ```
 
 
@@ -55,6 +66,12 @@ c. ... compara el histograma obtenido con la distribución teórica (la
    (usando `dexp` y `lines`).
    
 ```{r block_ii_and_iii}
+
+hist(M, freq = FALSE, main = "Tiempos de bloqueo", col = "lightblue", border = "white",
+     xlab = "Tiempo Mínimo", ylab = "Densidad de la distribución")
+x_s = seq(0:max(M), by = 0.03)
+lines(x_s, dexp(x_s, rate = 10), col = "red", type="o")
+legend("topright", c("Simulación Dist", "Distribución Teórica"), fill = c("lightblue", "red"))
 
 ```
 
