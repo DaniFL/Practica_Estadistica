@@ -42,6 +42,7 @@ de tus simulaciones en la variable `time_sims`. (Pista: las funciones
 `pmin` o `pmax` pueden ser útiles.) 
 
 ```{r block_i}
+
 # M: Tiempo falle el primero 
 # Tiempos de Fallo: 
 #     A = 2 segundos 
@@ -54,6 +55,7 @@ x_b = rexp(simulaciones, rate = 3)
 x_c = rexp(simulaciones, rate = 5)
 M = pmin(x_a, x_b, x_c)
 time_sims <- M
+
 ```
 
 
@@ -88,6 +90,14 @@ posibles salidas con probabilidad 1/3. En promedio, ¿cuánto tiempo
 necesita 007 antes de darse cuenta de que la cerradura de la puerta no funciona?
 
 ```{r bond}
+
+# Opcion_1 <- conducto ventilación (2 horas)
+# Opcion_2 <- alcantarillado       (5 horas)
+# Opcion_3 <- puerta (cerradura no funciona)          
+
+# Prob eleccion (1/3)
+# Tiempo en elegir la opcion 3 (puerta)
+
 
 ```
 
