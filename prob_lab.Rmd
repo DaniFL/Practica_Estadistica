@@ -1,6 +1,6 @@
 ---
 title: "Lab 1: probabilidad y variables aleatorias"
-author: Aquí, tu nombre
+author: Daniel Fernández López, Juan Cordero Pascual
 output: html_document
 ---
 
@@ -43,11 +43,14 @@ de tus simulaciones en la variable `time_sims`. (Pista: las funciones
 
 ```{r block_i}
 
-# M: Tiempo falle el primero 
-# Tiempos de Fallo: 
-#     A = 2 segundos 
-#     B = 3 segundos
-#     C = 5 segundos
+# M:tiempo hasta que falle el primer ordenador
+
+"
+Tiempos de Fallo: 
+     x_a (tiempo ordenador a) = 2 segundos 
+     x_b (tiempo ordenador b) = 3 segundos
+     x_c (tiempo ordenador c) = 5 segundos
+"
 
 simulaciones = 5000
 x_a = rexp(simulaciones, rate = 2)
@@ -68,6 +71,7 @@ c. ... compara el histograma obtenido con la distribución teórica (la
    (usando `dexp` y `lines`).
    
 ```{r block_ii_and_iii}
+# Histograma para representar la distribución de los tiempos de bloqueo de los tres ordenadores:
 
 hist(M, freq = FALSE, main = "Tiempos de bloqueo", col = "lightblue", border = "white",
      xlab = "Tiempo Mínimo", ylab = "Densidad de la distribución")
@@ -75,6 +79,7 @@ x_s = seq(0:max(M), by = 0.03)
 lines(x_s, dexp(x_s, rate = 10), col = "red", type="o")
 legend("topright", c("Simulación Dist", "Distribución Teórica"), fill = c("lightblue", "red"))
 
+# IMPORTANTE: definir "freq" como FALSE para que represente la densidad, en vez de la frecuencia que tiene definida por defecto (TRUE) 
 ```
 
 # James Bond 
@@ -89,19 +94,66 @@ recobrar el conocimiento, James Bond elige inmediatamente una de las tres
 posibles salidas con probabilidad 1/3. En promedio, ¿cuánto tiempo 
 necesita 007 antes de darse cuenta de que la cerradura de la puerta no funciona?
 
-```{r bond}
+```{r bond1}
+
+# VERSIÓN 1:
 
 # Opcion_1 <- conducto ventilación (2 horas)
 # Opcion_2 <- alcantarillado       (5 horas)
-# Opcion_3 <- puerta (cerradura no funciona)          
+# Opcion_3 <- puerta (cerradura != funciona)          
 
 # Prob eleccion (1/3)
 # Tiempo en elegir la opcion 3 (puerta)
 
+tiempoMedio = function(n){
+   aire = 2
+   alcantarilla = 5
+   opciones = c(1:3)
+   sims_007 = replicate(n, {
+      t = 0 
+      eleccion = 0
+      while (eleccion != 3){
+         eleccion = sample(opciones, 1)
+         if(eleccion == 1) tiempo = tiempo + aire 
+         if(eleccion == 2) tiempo = tiempo + alcantarilla
+      }
+      tiempo
+   })
+mean(sims_007)
+}
+
 
 ```
 
+```{r bond2}
 
+# VERSIÓN 2:
+
+# Opcion_1 <- conducto ventilación (2 horas)
+# Opcion_2 <- alcantarillado       (5 horas)
+# Opcion_3 <- puerta (cerradura != funciona)          
+
+# Prob eleccion (1/3)
+# Tiempo en elegir la opcion 3 (puerta):
+
+opciones = c(1:3)
+aire = 2
+alcantarilla = 5
+tiempo = 0
+N = 1000
+
+tiempo_p = replicate(N,{
+  eleccion = sample(opciones, 1)
+  while (eleccion != 3) {
+     if(eleccion == 1) tiempo = tiempo + aire
+     if(eleccion == 2) tiempo = tiempo + alcantarilla
+     eleccion = sample(opciones, 1)
+  }
+  tiempo
+})
+mean(tiempo_p)
+
+```
 # Urnas vacías
 Se distribuyen $r$ bolas en $n$ urnas. Estamos interesados en conocer la 
 distribución de la variable aleatoria U: "número de urnas vacías". Procede
@@ -111,6 +163,22 @@ a. Escribe una función con prototipo `simulate_u(r, n)` que devuelva una única
 simulación de U (el número de urnas vacías).
 
 ```{r urn_i}
+# r: nº de bolas 
+# n: nº urnas
+# U: nº urnas vacías 
+
+# Simulación de la variable aleatoria U: "número de urnas vacías"
+simulate_u = function(r, n){
+  # Representación inicial del nº de urnas (todas vacías)
+   urnas = rep(0, n)
+   # Distribución de las bolas en las urnas 
+   for (i in 1:r){
+     # Seleccionamos una urna aleatoriamente (sumamos 1 bola)
+      urnas[sample(1:n, 1)] = urnas[sample(1:n, 1)] + 1
+   }
+   # Devolvemos nº de urnas vacías 
+   sum(urnas == 0)
+}
 
 ```
 
@@ -124,6 +192,9 @@ Genera una simulación de U y escribe cuáles van a ser
 tus comprobaciones de "éxito". Usa, por ejemplo, 10 bolas y 7 urnas.
 
 ```{r urn_ii}
+
+
+
 ```
 
 c. Escribe una función con prototipo 
@@ -172,7 +243,16 @@ de $\text{n_sims} \times 3$. Usa la función `cbind` e intenta evitar el uso
 de `replicate` por eficiencia.
 
 ```{r traffic_i}
-
+sim_traffic = function(n_sims){
+  # Simulación de la variable aleatoria T: "ritmo medio de envío de correos electrónicos"
+  t = rexp(n_sims, rate = 1/20)
+  # Simulación de la variable aleatoria M: "nº de mensajes maliciosos enviados durante la hora"
+  m = rpois(n_sims, lambda = 0.4 * t)
+  # Simulación de la variable aleatoria B: "nº de mensajes maliciosos que llegan a la bandeja de entrada"
+  b = rbinom(n_sims, size = m, prob = 0.125)
+  # Devolvemos las tres variables aleatorias (matriz)
+  cbind(b, m, t)
+}
 ```
 
 b. Para nuestros objetivo final, la variable $T$ no es útil, por lo que debemos 
@@ -183,7 +263,11 @@ y pegar código es un crimen contra la humanidad penado por los tribunales
 internacionales.)
 
 ```{r traffic_ii}
-
+# Marginalizamos la t 
+sim_messages = function(n_sims){
+  marginalizacion_t = sim_traffic(n_sims)[, c(1, 2)]
+  marginalizacion_t
+}
 ```
 
 c. Hoy hemos recibido en nuestra bandeja de entrada $B=b$ mensajes maliciosos. 
@@ -194,7 +278,15 @@ en clase, a la hora de calcular probabilidades condicionadas tenemos dos
 condiciones de éxito.)
 
 ```{r traffic_iii}
-
+# calcula la probabilidad condicionada P(M=m|B=b)
+p_m_given_b = function(m, b, n_sims=10000){
+  # Simulamos las variables aleatorias B y M
+  simulaciones = sim_messages(n_sims)
+  # Calculamos la probabilidad condicionada (dos condiciones de éxito)
+  condicion_numerador = sum(simulaciones[, 1] == b & simulaciones[, 2] == m)
+  condicion_denominador = sum(simulaciones[, 1] == b)
+  condicion_numerador / condicion_denominador
+}
 ```
 
 d) Imaginemos que hemos recibido $B=2$ mensajes maliciosos en nuestro correo. 
@@ -203,7 +295,15 @@ $M$ más probable (la moda). Para hacer el plot, vectoriza previamente
 la función con `Vectorize` y usa un gran número de simulaciones.
 
 ```{r traffic_iv, cache=TRUE}
+# Vectorizamos la función
+p_m_given_b_vectorizada = Vectorize(p_m_given_b)
 
+# Calculamos la moda (valor más probable)
+moda = which.max(p_m_given_b_vectorizada(0:10, 2, n_sims = 100000))
+
+# Dibujamos la probabilidad condicionada (probabilidad de que de m mensajes maliciosos enviados, 2 llegen a la bandeja de entrada)
+plot(0:10, p_m_given_b_vectorizada(0:10, 2, n_sims = 100000), type = "o", lwd = 3, col = "blue", xlab = "m: nº mensajes mal enviados", ylab = "P(M=m|B=2)")
+abline(v = moda, col = "red", lwd = 3)
 ```
 
 **Indica aquí cuál es el valor más probable**
@@ -260,6 +360,7 @@ todo número $r$ válido.
 c) Dibuja $p_r$ Vs. $r$.
 
 ```{r secretary_iii}
+
 
 ```
 
